@@ -18,7 +18,7 @@ from typing import List, Optional
 import os
 import time
 # Use a service account.
-cred = credentials.Certificate("./firebase_privatekey.json")
+cred = credentials.Certificate("./private_files/firebase_privatekey.json")
 
 firebase_app = firebase_admin.initialize_app(cred)
 
@@ -43,12 +43,11 @@ async def on_startup():
     loop.run_in_executor(executor, subscribe_transactions_sync)
 
     # Run the other tasks asynchronously in the main event loop
-    #post_transactions(await get_transactions())
-    # Uncomment if needed
-    # post_invoices(await get_invoices())
+    post_transactions(get_transactions())
+    post_invoices(get_invoices())
 def get_transactions(block_height_start=None) -> List[Transaction]:
     url = f"{REST_HOST}/v1/transactions"
-    macaroon_path = 'lnd_admin.macaroon'
+    macaroon_path = './private_files/lnd_admin.macaroon'
     # Confirm the macaroon file exists
     if not os.path.exists(macaroon_path):
         raise FileNotFoundError(f"Macaroon file not found at {macaroon_path}")
@@ -96,7 +95,7 @@ def post_transaction(transaction: Transaction):
      db.collection(BACKEND_COLLECTION).document(user_id).collection(TRANSACTIONS_SUBCOLLECTION).document(transaction.tx_hash).update(transaction.to_json())
 
 def post_recent_transactions():
-   macaroon_path = 'lnd_admin.macaroon'
+   macaroon_path = './private_files/lnd_admin.macaroon'
  # Confirm the macaroon file exists
    if not os.path.exists(macaroon_path):
     raise FileNotFoundError(f"Macaroon file not found at {macaroon_path}")
@@ -114,7 +113,7 @@ def post_recent_transactions():
    post_transactions(get_transactions(block_height_start=new_block_height))
 async def subscribe_transactions():
  url = f"{REST_HOST}/v1/transactions/subscribe"
- macaroon_path = 'lnd_admin.macaroon'
+ macaroon_path = './private_files/lnd_admin.macaroon'
  # Confirm the macaroon file exists
  if not os.path.exists(macaroon_path):
   raise FileNotFoundError(f"Macaroon file not found at {macaroon_path}")
@@ -180,7 +179,7 @@ def calculate_unix_timestamp(hours_ago: int) -> int:
 
 def get_invoices(creation_date_start=None) -> List[Invoice]:
     url = f"{REST_HOST}/v1/invoices"
-    macaroon_path = 'lnd_admin.macaroon'
+    macaroon_path = './private_files/lnd_admin.macaroon'
     
     # Confirm the macaroon file exists
     if not os.path.exists(macaroon_path):
@@ -260,7 +259,7 @@ def post_recent_invoices():
 
 async def subscribe_invoices():
  url = f"{REST_HOST}/v1/invoices/subscribe"
- macaroon_path = 'lnd_admin.macaroon'
+ macaroon_path = './private_files/lnd_admin.macaroon'
  # Confirm the macaroon file exists
  if not os.path.exists(macaroon_path):
   raise FileNotFoundError(f"Macaroon file not found at {macaroon_path}")
